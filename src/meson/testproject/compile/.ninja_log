@@ -1,0 +1,5 @@
+# ninja log v5
+0	16	1609381326	testproject@exe/testproject.c.o	76fcb2a724cf877
+16	32	1609381326	testproject	d4a7ea2d25c02765
+1	16	1609381492	testproject@exe/testproject.c.o	76fcb2a724cf877
+16	35	1609381493	testproject	d4a7ea2d25c02765
