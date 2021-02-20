@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib/arm-linux-gnueabihf
+includedir=${prefix}/include
+
+Name: Sratom
+Version: 0.6.0
+Description: LV2 Atom RDF serialisation library
+Requires: lv2 serd-0 sord-0
+Libs: -L${libdir} -lsratom-0
+Cflags: -I${includedir}/sratom-0

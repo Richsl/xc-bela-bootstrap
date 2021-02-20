@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib/arm-linux-gnueabihf
+includedir=${prefix}/include
+
+Name: Serd
+Version: 0.26.0
+Description: Lightweight RDF syntax library
+Libs: -L${libdir} -lserd-0
+Libs.private: -lm
+Cflags: -I${includedir}/serd-0

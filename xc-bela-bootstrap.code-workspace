@@ -13,6 +13,10 @@
 		"files.exclude": {
 			"**/.clangd": true,
 			"compile_commands.json": true
-		}
+		},
+		"files.associations": {
+			"cmath": "cpp"
+		},
+		"git.ignoreLimitWarning": true
 	}
 }

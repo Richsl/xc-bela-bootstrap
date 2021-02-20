@@ -1,0 +1,103 @@
+
+#[[
+mkdir build # if it doesn't exist already
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE=../Toolchain.cmake ../
+cmake --build .
+
+debug with 
+gdbserver localhost:9999 ./<application>
+]]#
+
+
+
+set(NAME samplv1)
+
+include_directories (
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+message( "CMake_source_dir " ${CMAKE_SOURCE_DIR} )
+message( "CMake_binary_dir " ${CMAKE_BINARY_DIR} )
+message( "CMake_current_source_dir " ${CMAKE_CURRENT_SOURCE_DIR} )
+message( "CMake_current_binary_dir " ${CMAKE_CURRENT_BINARY_DIR} )
+message( "Name variable " ${NAME} )
+
+configure_file (${CMAKE_SOURCE_DIR}/samplv1/samplv1-code/src/cmake_config.h.in ${CMAKE_SOURCE_DIR}/samplv1/samplv1-code/src/config.h)
+#BELA_AUDIO_THREAD_NAME?=bela-audio 
+#BELA_IDE_HOME?=/root/Bela/IDE
+#XENO_CONFIG=/usr/xenomai/bin/xeno-config
+set(XENOMAI_SKIN posix)
+#XENOMAI_VERSION=$(shell $(XENO_CONFIG) --version | grep -o "2\.6" || echo "3")
+
+set (XENOMAI_VERSION 3)
+
+if (${XENOMAI_VERSION} EQUAL 2.6)
+set (XENOMAI_MAJOR 2)
+endif()
+if (${XENOMAI_VERSION} EQUAL 3)
+set (XENOMAI_MAJOR 3)
+endif()
+#define XENOMAI_MAJOR 3
+#[[
+if (${XENOMAI_VERSION} EQUAL 2.6)
+XENOMAI_STAT_PATH=/proc/xenomai/stat
+LIBPD_LIBS=-lpd -lpthread_rt
+endif
+if(${XENOMAI_VERSION} EQUAL 3)
+XENOMAI_STAT_PATH=/proc/xenomai/sched/stat
+LIBPD_LIBS=-lpd -lpthread
+endif
+]]
+
+if (${XENOMAI_VERSION} EQUAL 2.6)
+  set(BELA_USE_DEFINE BELA_USE_POLL)
+  add_compile_definitions(BELA_USE_POLL)
+endif()
+if (${XENOMAI_VERSION} EQUAL 3)
+  set(BELA_USE_DEFINE BELA_USE_RTDM)
+  add_compile_definitions(BELA_USE_RTDM)
+endif()
+
+
+#message( "___XENOMAI VERSION___" ${XENOMAI_VERSION} "\n")
+#message( "___XENOMAI MAJOR___" ${XENOMAI_MAJOR} "\n")
+#set (XENOMAI_TEST 3)
+add_compile_definitions(XENOMAI_VERSION=${XENOMAI_VERSION} XENOMAI_MAJOR=${XENOMAI_MAJOR}  XENOMAI_SKIN=${XENOMAI_SKIN})
+#add_definitions(-DXENOMAI_VERSION -DXENOMAI_MAJOR -DXENOMAI_SKIN)
+add_executable(sinetone
+    ${CMAKE_SOURCE_DIR}/Bela/core/default_main.cpp
+    ${CMAKE_SOURCE_DIR}/Bela/core/RTAudioCommandLine.cpp
+    ${CMAKE_SOURCE_DIR}/Bela/core/RTAudio.cpp
+    ${CMAKE_SOURCE_DIR}/Bela/core/UDA1334A_Codec.cpp
+    ${CMAKE_SOURCE_DIR}/Bela/core/PRU.cpp
+    ${CMAKE_SOURCE_DIR}/Bela/core/board_detect.cpp
+    ${CMAKE_SOURCE_DIR}/Bela/core/PruBinary.cpp
+    render.cpp
+)
+
+target_link_libraries(sinetone PRIVATE
+    ${CMAKE_SYSROOT}/root/Bela/lib/libbelafull.a
+)
+
+## this PRE_BUILD command is to build the pru code 
+if(false)
+add_custom_command(
+    TARGET sinetone
+    PRE_BUILD
+    COMMAND scp ${CMAKE_SOURCE_DIR}/Bela/pru/pru_rtaudio_UDA1334.p root@$ENV{BBB_HOSTNAME}:~/Bela/pru
+    COMMAND ssh -t root@$ENV{BBB_HOSTNAME} "/usr/local/bin/pasm -V2 -L -c ~/Bela/pru/pru_rtaudio_UDA1334.p ~/Bela/pru/pru_rtaudio_UDA1334"
+    COMMAND scp root@$ENV{BBB_HOSTNAME}:~/Bela/pru/pru_rtaudio_UDA1334_bin.h ${CMAKE_SYSROOT}/root/Bela/include
+    ## and copy it back to remote system so that it will get loaded at runtime
+    COMMAND scp ${CMAKE_SYSROOT}/root/Bela/include/pru_rtaudio_UDA1334_bin.h root@$ENV{BBB_HOSTNAME}:~/Bela/build/pru
+)
+endif()
+
+#this is to uploade to the BELA
+add_custom_command(
+    TARGET sinetone
+    POST_BUILD
+    COMMAND scp ${CMAKE_BINARY_DIR}/bin/sinetone root@$ENV{BBB_HOSTNAME}:~/Bela/uploads
+    COMMAND ssh -t root@$ENV{BBB_HOSTNAME} ~/Bela/uploads/sinetone
+)

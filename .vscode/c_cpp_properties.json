@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            /*
+               "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/../../sysroot/root/Bela/include",
+                "${workspaceFolder}/../../sysroot/usr/include",
+                "${workspaceFolder}/../../sysroot/usr/include/c++/6.3.0",
+                "${workspaceFolder}/../../sysroot/usr/include/arm-linux-gnueabihf",
+                "${workspaceFolder}/../../sysroot/usr/include/arm-linux-gnueabihf/c++/6.3.0",
+                "${workspaceFolder}/../../sysroot/root/Bela"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang-10",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "clang-arm",
+            */
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}
